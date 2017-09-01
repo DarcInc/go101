@@ -1,5 +1,4 @@
 +++
 title = "Filepath vs Path"
 +++
-# filepath vs path
-
+What's in a path?

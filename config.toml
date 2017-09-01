@@ -2,6 +2,8 @@ baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "My New Hugo Site"
 theme = "docdock"
+[params]
+    copyright = "Copyright 2017 DarkInk, LLC"
 
 [outputs]
-home = ["HTML", "RSS", "JSON"]
+    home = ["HTML", "RSS", "JSON"]

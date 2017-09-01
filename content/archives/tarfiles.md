@@ -1,7 +1,6 @@
 +++
 title = "tar files"
 +++
-## Tar Files
 Tar files are a *nix standard originally used to write files into
 a tape to create backups and archives.  It is rarely used for 
 actual tape drives.  It is more often used to create files that 
@@ -59,7 +58,11 @@ reader := tar.NewReader(file)
 ### Reading from a Tar Archive
 Reading from the tar file is also a two-step process.  The first part
 is reading the header and then (if applicable) reading the bytes 
-following the header.  
+following the header.  Because the tar reader follows the io.Reader
+interface, it can also be passed to the useful 
+[<code>io.Copy</code>](https://golang.org/pkg/io/#Copy) function 
+which will copy the bytes from the source reader to the destination
+writer until the reader returns and end of file.
 
 ```Go
 // First step is to get the header, which can contain the file size.
@@ -71,3 +74,60 @@ reader.Read(buffer)
 ```
 
 ### Putting it All Together
+The following program [tarfiles/main.go](https://github.com/DarcInc/go101examples/blob/master/archives/tarfiles/main.go) creates a tar archive and then reads data from
+that archive.  In the header the <code>Name</code> and <code>Mode</code>
+indicate the name of the file and permissions.  If you checkout the [example code](https://github.com/DarcInc/go101examples) and run the program
+using <code>go run main.go</code>, you'll see two files created.  The first
+file created is temp.tar.  If you use the *nix <code>tar -tf temp.tar</code>
+command, you'll see it contains one file called "MyFile.txt".  The second 
+file created is "MyFile.txt" when readArchive unpacks the archive.
+
+```Go
+package main
+
+import (
+	"archive/tar"
+	"io"
+	"os"
+)
+
+/*
+ * This function creates an archive and writes a file
+ * into the archive.
+ */
+func createArchive() {
+	someData := []byte("The quick brown fox jumps over the lazy dog")
+
+	file, _ := os.OpenFile("temp.tar", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
+	defer file.Close()
+
+	writer := tar.NewWriter(file)
+	header := &tar.Header{Name: "MyFile.txt", Mode: 0644}
+	writer.WriteHeader(header)
+	writer.Write(someData)
+}
+
+/*
+ * This function opens an archive for reading, reads the
+ * header to get the file information, then copys the
+ * data to a new file.
+ */
+func readArchive() {
+	file, _ := os.Open("temp.tar")
+	defer file.Close()
+
+	reader := tar.NewReader(file)
+	header, _ := reader.Next()
+
+	outfile, _ := os.OpenFile(header.Name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, os.FileMode(header.Mode))
+	defer outfile.Close()
+
+	io.Copy(outfile, reader)
+}
+
+func main() {
+	createArchive()
+	readArchive()
+}
+
+```
