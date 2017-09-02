@@ -41,3 +41,24 @@ no 'break' at the end of each case statement.  The default clause (which
 is optional) basically allows you to add some statements to execute when
 none of the cases match.
 
+Switch statements don't have to refer to a specific variable.  The case 
+conditions can be simple boolean expressions.  For example, say we have a 
+high score and the user's current score.  The case conditional tests can
+compare the scores instead of just testing the score value.  [Try It Out!](https://play.golang.org/p/E0a6vY16sL)
+
+```Go
+score := 7
+highscore := 10
+
+switch {
+case score == 0:
+    fmt.Println("Try again!")
+case score < highscore:
+    fmt.Println("Almost there!")
+case score == highscore:
+    fmt.Println("You got the high score!")
+case score > highscore:
+    fmt.Println("You have a new high score!")
+}
+```
+

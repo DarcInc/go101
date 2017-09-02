@@ -42,6 +42,9 @@ and will not be follwed by data.
 // Create a header
 myheader := &tar.Header{Name:"foo", Mode:0755}
 tarWriter.WriteHeader(myheader)
+
+// Write the actual data
+bytesWritten, error := tarWriter.Write(someData)
 ```
 ### Opening a Tar Archive
 Much like the writer implments io.Writer interface, the tar reader
